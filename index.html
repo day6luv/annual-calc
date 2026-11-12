@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>연차 계산기 — 입사일·회계연도 기준 모두 지원</title>
-<meta name="description" content="근로기준법 제60조 기준 연차 계산기. 입사일 기준과 회계연도 기준을 모두 지원하고, 1년 미만 월차와 근속 가산까지 정확하게 계산합니다.">
+<title>호우 (hooooow) — 직장인 만능 툴킷 (연차 · 점심 돌림판 · 커피 사다리)</title>
+<meta name="description" content="근로기준법 기준 연차 계산기부터 점심 메뉴 돌림판, 커피 내기 사다리 타기까지. 직장인을 위한 가볍고 빠른 만능 유틸리티 툴킷.">
 
 <!-- SEO: 대표 URL (도메인 변경 시 이 주소도 함께 수정) -->
 <link rel="canonical" href="https://hooooooooow.vercel.app/">
 
 <!-- 공유 미리보기 (카카오톡·페이스북·트위터) -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="연차 계산기 — 입사일·회계연도 기준 모두 지원">
-<meta property="og:description" content="입사일만 넣으면 올해 내 연차가 며칠인지 바로 계산. 1년 미만 월차, 근속 가산, 퇴직 정산 비교까지.">
+<meta property="og:site_name" content="호우 (hooooow)">
+<meta property="og:title" content="호우 (hooooow) — 직장인 만능 툴킷">
+<meta property="og:description" content="연차 계산기 · 점심 메뉴 돌림판 · 커피 내기 사다리 타기를 한 곳에서.">
 <meta property="og:url" content="https://hooooooooow.vercel.app/">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:image" content="https://hooooooooow.vercel.app/og-image.png">
+<meta property="og:image" content="https://hooooooooow.vercel.app/og-image.jpg?v=2">
+<meta property="og:image:secure_url" content="https://hooooooooow.vercel.app/og-image.jpg?v=2">
+<meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="연차 계산기·돌림판·사다리 타기를 상징하는 미니멀 추상 그래픽">
+<meta property="og:image:alt" content="호우 (hooooow) 직장인 만능 툴킷 대표 그래픽">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://hooooooooow.vercel.app/og-image.png">
+<meta name="twitter:title" content="호우 (hooooow) — 직장인 만능 툴킷">
+<meta name="twitter:description" content="연차 계산기 · 점심 메뉴 돌림판 · 커피 내기 사다리 타기를 한 곳에서.">
+<meta name="twitter:image" content="https://hooooooooow.vercel.app/og-image.jpg?v=2">
 
 <!-- 파비콘 (이모지 SVG, 별도 파일 불필요) -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏖️</text></svg>">
@@ -243,6 +248,19 @@
     font-size: 12px; color: var(--muted);
   }
 
+  /* ---------- 사이트 브랜딩 바 ---------- */
+  .site-bar {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 16px; padding: 0 4px;
+  }
+  .site-bar .brand {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    color: var(--pine-deep); text-decoration: none;
+  }
+  .site-bar .tagline {
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+
   /* ========== 공통: 탭 내비게이션 / 패널 ========== */
   .tabs {
     position: sticky; top: 0; z-index: 30;
@@ -411,6 +429,11 @@
 </head>
 <body>
 <div class="wrap">
+
+  <div class="site-bar">
+    <a href="/" class="brand">hooooow</a>
+    <span class="tagline">직장인 만능 툴킷</span>
+  </div>
 
   <nav class="tabs" role="tablist" aria-label="도구 선택">
     <button type="button" class="tab" id="tab-calc" role="tab" aria-controls="panel-calc" aria-selected="true" data-panel="calc">🏖️ 연차 계산기</button>
@@ -624,8 +647,9 @@
   </section>
 
   <footer>
-    이 계산기는 근로기준법 제60조와 고용노동부 행정해석을 기준으로 하며, 참고용입니다.
-    실제 연차는 회사 취업규칙과 출근율에 따라 달라질 수 있습니다. · 기준 확인일: 2026.07
+    호우 (hooooow) · 직장인 만능 툴킷 (연차 계산기 · 점심 돌림판 · 커피 사다리)
+    <br>
+    연차 계산기는 근로기준법 제60조 및 고용노동부 행정해석을 기준으로 합니다.
   </footer>
 
 </div>
