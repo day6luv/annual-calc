@@ -455,8 +455,10 @@
       rungs = [];
       for (var r = 0; r < ROWS; r++) {
         var set = new Set();
+        var above = r > 0 ? rungs[r - 1] : null;
         for (var c = 0; c < names.length - 1; c++) {
-          if (set.has(c - 1)) continue;             // 같은 층에서 가로줄이 붙지 않게
+          if (set.has(c - 1)) continue;            // 같은 층에서 가로줄이 붙지 않게
+          if (above && above.has(c)) continue;     // 바로 윗층과 같은 자리는 피해서 계단처럼 보이게
           if (Math.random() < 0.42) set.add(c);
         }
         rungs.push(set);
