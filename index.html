@@ -245,7 +245,7 @@
 
   /* ========== 공통: 탭 내비게이션 / 패널 ========== */
   .tabs {
-    position: sticky; top: 8px; z-index: 30;
+    position: sticky; top: 0; z-index: 30;
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
     background: rgba(255, 255, 255, 0.94);
     -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
@@ -600,7 +600,7 @@
       </div>
 
       <div class="field">
-        <span class="field-label">결과 · 벌칙 <span style="font-weight:400; color:var(--muted)">(아래쪽 결과와 위에서부터 차례로 연결돼요)</span></span>
+        <span class="field-label">결과 · 벌칙 <span style="font-weight:400; color:var(--muted)">(아래쪽 칸의 결과가 사다리로 무작위 연결돼요)</span></span>
         <div class="items" id="lResults"></div>
       </div>
     </div>

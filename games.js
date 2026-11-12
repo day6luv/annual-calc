@@ -74,7 +74,7 @@
     };
 
     var items = PRESETS.lunch.slice();
-    var angle = -Math.PI / 2;     // 라디안, 첫 섹터가 12시에서 살짝 비껴 시작
+    var angle = -Math.PI / 2 + 0.3;   // 라디안(캔버스 기준). 첫 섹터가 12시 부근에서 시작
     var spinning = false;
     var winIdx = -1;
     var pendingIdx = -1;
@@ -252,7 +252,8 @@
       var jitter = (Math.random() - 0.5) * seg * 0.62;
       var desired = -Math.PI / 2 - (pendingIdx + 0.5) * seg + jitter;
       var base = ((desired - angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-      var turns = reduceMotion.matches ? 1 : 5 + Math.random() * 2.5;
+      // 반드시 정수 바퀴: 소수 바퀴가 남으면 포인터가 당첨 섹터를 벗어남
+      var turns = reduceMotion.matches ? 1 : 5 + Math.floor(Math.random() * 3);
 
       anim.from = angle;
       anim.to = angle + turns * Math.PI * 2 + base;
@@ -437,6 +438,12 @@
       var v = (names[i] || '').trim();
       return v || defaultName(i);
     }
+    /* 사다리 상단 라벨용: 기본 이름("참가자 1")은 번호만 보여 좌은 폭에서도 구분되게 */
+    function shortName(i) {
+      var v = nameOf(i);
+      var m = v.match(/^참가자\s*(\d+)$/);
+      return m ? m[1] : v;
+    }
     function resultOf(i) {
       var v = (results[i] || '').trim();
       return v || defaultResult(i);
@@ -482,7 +489,7 @@
       if (!avail) return false;
 
       var n = names.length;
-      var minCw = 46;
+      var minCw = 52;
       boardW = Math.max(avail, n * minCw);
       cw = boardW / n;
       rowH = n > 14 ? 26 : 30;
@@ -775,7 +782,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'lname';
-        b.textContent = nameOf(i);
+        b.textContent = shortName(i);
         b.title = nameOf(i);
         b.setAttribute('data-i', String(i));
         b.addEventListener('click', function () { traceFrom(i); });
@@ -849,7 +856,7 @@
           names[i] = input.value;
           var btn = qsa('.lname')[i];
           if (btn) {
-            btn.textContent = nameOf(i);
+            btn.textContent = shortName(i);
             btn.title = nameOf(i);
           }
         } else if (kind === 'result' && i >= 0 && i < results.length) {
