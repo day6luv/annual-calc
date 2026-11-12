@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://annual-calc.vercel.app/sitemap.xml
+Sitemap: https://hooooooooow.vercel.app/sitemap.xml
