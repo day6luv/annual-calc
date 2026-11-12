@@ -774,6 +774,7 @@
     function renderRows() {
       var n = names.length;
       var cols = 'repeat(' + n + ', minmax(0, 1fr))';
+      var tight = cw < 62;   // 칸이 좁으면 "참가자 1" 대신 번호만
 
       var top = $('lNameRow');
       top.style.gridTemplateColumns = cols;
@@ -782,7 +783,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'lname';
-        b.textContent = shortName(i);
+        b.textContent = tight ? shortName(i) : nameOf(i);
         b.title = nameOf(i);
         b.setAttribute('data-i', String(i));
         b.addEventListener('click', function () { traceFrom(i); });
@@ -856,7 +857,7 @@
           names[i] = input.value;
           var btn = qsa('.lname')[i];
           if (btn) {
-            btn.textContent = shortName(i);
+            btn.textContent = cw < 62 ? shortName(i) : nameOf(i);
             btn.title = nameOf(i);
           }
         } else if (kind === 'result' && i >= 0 && i < results.length) {
