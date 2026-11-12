@@ -15,7 +15,12 @@
 <meta property="og:description" content="입사일만 넣으면 올해 내 연차가 며칠인지 바로 계산. 1년 미만 월차, 근속 가산, 퇴직 정산 비교까지.">
 <meta property="og:url" content="https://annual-calc.vercel.app/">
 <meta property="og:locale" content="ko_KR">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://annual-calc.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="연차 계산기·돌림판·사다리 타기를 상징하는 미니멀 추상 그래픽">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://annual-calc.vercel.app/og-image.png">
 
 <!-- 파비콘 (이모지 SVG, 별도 파일 불필요) -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏖️</text></svg>">
@@ -238,14 +243,182 @@
     font-size: 12px; color: var(--muted);
   }
 
+  /* ========== 공통: 탭 내비게이션 / 패널 ========== */
+  .tabs {
+    position: sticky; top: 8px; z-index: 30;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 14px; padding: 5px;
+    margin-bottom: 26px; box-shadow: var(--shadow);
+  }
+  .tab {
+    font-family: inherit; font-size: 14px; font-weight: 700; color: var(--muted);
+    background: transparent; border: none; border-radius: 10px;
+    padding: 11px 4px; cursor: pointer; white-space: nowrap;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .tab:hover { color: var(--pine); }
+  .tab[aria-selected="true"] { background: var(--pine); color: #fff; }
+  .tab:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.32); outline-offset: 2px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: panelIn 0.3s ease-out; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .panel.active { animation: none; } }
+
+  /* ========== 공통 컨트롤 ========== */
+  .count-badge {
+    display: inline-block; margin-left: 6px; padding: 1px 9px;
+    font-size: 12px; font-weight: 800; color: var(--pine-deep);
+    background: var(--pine-soft); border-radius: 99px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stepper { display: flex; align-items: center; gap: 12px; }
+  .step-btn {
+    flex: none; width: 40px; height: 40px; font-size: 20px; font-weight: 700; line-height: 1;
+    font-family: inherit; color: var(--pine); background: #fff;
+    border: 1.5px solid var(--line); border-radius: 11px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .step-btn:hover:not(:disabled) { background: var(--pine-soft); border-color: var(--pine); }
+  .step-btn:disabled { opacity: 0.38; cursor: default; }
+  .step-btn:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.3); outline-offset: 2px; }
+  .stepper input[type="range"] { flex: 1; min-width: 0; height: 26px; accent-color: var(--pine); cursor: pointer; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 8px 14px; border-radius: 99px;
+    background: #fff; color: var(--ink); border: 1.5px solid var(--line); cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .chip:hover { border-color: var(--pine); color: var(--pine); }
+  .chip.active { background: var(--pine-soft); border-color: var(--pine); color: var(--pine-deep); }
+  .chip:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.25); outline-offset: 2px; }
+
+  .items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .item { position: relative; display: flex; align-items: center; }
+  .item .idx {
+    position: absolute; left: 10px; font-size: 11px; font-weight: 700;
+    color: #9AAAA2; font-variant-numeric: tabular-nums; pointer-events: none;
+  }
+  .item.has-dot input { padding-right: 26px; }
+  .item .dot {
+    position: absolute; right: 10px; width: 9px; height: 9px; border-radius: 50%;
+    box-shadow: 0 0 0 2px #fff; pointer-events: none;
+  }
+  .item input {
+    width: 100%; padding: 10px 10px 10px 30px;
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    background: #fff; border: 1.5px solid var(--line); border-radius: 10px;
+  }
+  .item input:focus-visible { outline: none; border-color: var(--pine); box-shadow: 0 0 0 3px rgba(30, 107, 78, 0.15); }
+
+  /* ========== 돌림판 ========== */
+  .wheel-card { text-align: center; }
+  .wheel-stage { position: relative; width: min(100%, 360px); aspect-ratio: 1 / 1; margin: 6px auto 0; }
+  #wheelCanvas { display: block; width: 100%; height: 100%; filter: drop-shadow(0 10px 22px rgba(15, 69, 49, 0.16)); }
+  .pointer {
+    position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; z-index: 3;
+    border-left: 10px solid transparent; border-right: 10px solid transparent;
+    border-top: 22px solid var(--amber);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.22));
+  }
+  .spin-btn {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 27%; aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
+    font-family: inherit; font-size: 15px; font-weight: 800; letter-spacing: -0.01em;
+    color: var(--pine-deep); background: #fff;
+    border: 3px solid var(--pine); cursor: pointer; z-index: 2;
+    box-shadow: 0 4px 14px rgba(15, 69, 49, 0.2);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .spin-btn:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.06); background: var(--pine-soft); }
+  .spin-btn:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.35); outline-offset: 3px; }
+  .spin-btn:disabled { cursor: default; color: var(--muted); border-color: var(--line); font-size: 11.5px; }
+  .spin-result {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; min-height: 66px; margin-top: 18px;
+  }
+  .spin-result .label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  .spin-result .winner {
+    font-size: 27px; font-weight: 800; color: var(--pine-deep);
+    line-height: 1.25; word-break: keep-all;
+  }
+  .spin-result.win { animation: pop 0.5s cubic-bezier(0.2, 1.4, 0.5, 1); }
+  @keyframes pop { from { transform: scale(0.88); opacity: 0.35; } to { transform: scale(1); opacity: 1; } }
+
+  /* ========== 사다리 타기 ========== */
+  .ladder-card { padding: 18px 16px 20px; }
+  .ladder-hint { font-size: 12.5px; color: var(--muted); margin: 2px 4px 12px; }
+  .ladder-scroll { overflow-x: auto; overflow-y: hidden; padding: 2px 0 4px; -webkit-overflow-scrolling: touch; }
+  .ladder-inner { margin: 0 auto; }
+  .ladder-labels { display: grid; gap: 0; }
+  .ladder-labels.top { margin-bottom: 8px; }
+  .ladder-labels.bottom { margin-top: 8px; }
+  .lname, .lres {
+    font-family: inherit; font-size: 12px; border-radius: 8px;
+    padding: 7px 2px; margin: 0 2px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; text-align: center;
+  }
+  .lname {
+    font-weight: 700; color: var(--ink); background: var(--pine-soft);
+    border: 1.5px solid transparent; cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .lname:hover { border-color: var(--pine); }
+  .lname.active { background: var(--pine); color: #fff; border-color: var(--pine); }
+  .lname:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.3); outline-offset: 1px; }
+  .lres { font-weight: 600; color: var(--pine-deep); background: #fff; border: 1.5px solid var(--line); }
+  .lres.hit { background: var(--amber); border-color: var(--amber); color: #4A2E00; }
+  #ladderCanvas { display: block; }
+  .ladder-toast { min-height: 24px; margin-top: 12px; text-align: center; font-size: 14px; font-weight: 700; color: var(--muted); }
+  .ladder-toast.ok { color: var(--pine-deep); animation: pop 0.4s ease-out; }
+  .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .btn-row > * { flex: 1 1 150px; }
+  .btn-ghost {
+    padding: 14px; font-family: inherit; font-size: 15px; font-weight: 700;
+    color: var(--pine); background: #fff; border: 1.5px solid var(--pine);
+    border-radius: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-ghost:hover { background: var(--pine-soft); }
+  .btn-ghost:focus-visible { outline: 3px solid rgba(30, 107, 78, 0.3); outline-offset: 2px; }
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+  .result-grid[hidden] { display: none; }
+  .res-row {
+    display: flex; align-items: center; gap: 6px; min-width: 0;
+    padding: 10px 12px; background: #FBFDFC; border: 1px solid var(--line);
+    border-radius: 10px; font-size: 13px;
+  }
+  .res-row .who { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 42%; }
+  .res-row .arw { color: var(--muted); flex: none; }
+  .res-row .what { font-weight: 700; color: var(--pine); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
   @media (max-width: 480px) {
+    body { line-height: 1.55; }
     h1 { font-size: 25px; }
     .ticket .t-number { font-size: 46px; }
+    .tab { font-size: 12.5px; padding: 10px 2px; }
+    .wrap { padding: 26px 16px 64px; }
+    .card { padding: 20px 16px; }
+    .item input { padding-left: 27px; font-size: 15px; }
+    .spin-result .winner { font-size: 23px; }
+    .result-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <nav class="tabs" role="tablist" aria-label="도구 선택">
+    <button type="button" class="tab" id="tab-calc" role="tab" aria-controls="panel-calc" aria-selected="true" data-panel="calc">🏖️ 연차 계산기</button>
+    <button type="button" class="tab" id="tab-roulette" role="tab" aria-controls="panel-roulette" aria-selected="false" tabindex="-1" data-panel="roulette">🎯 돌림판</button>
+    <button type="button" class="tab" id="tab-ladder" role="tab" aria-controls="panel-ladder" aria-selected="false" tabindex="-1" data-panel="ladder">🪜 사다리 타기</button>
+  </nav>
+
+  <section class="panel active" id="panel-calc" role="tabpanel" aria-labelledby="tab-calc">
 
   <header>
     <span class="eyebrow">근로기준법 제60조 기준</span>
@@ -358,6 +531,98 @@
     </details>
   </section>
 
+  </section>
+
+  <!-- ===================== 돌림판 ===================== -->
+  <section class="panel" id="panel-roulette" role="tabpanel" aria-labelledby="tab-roulette" hidden>
+    <header>
+      <span class="eyebrow">점심 메뉴 · 커피 내기</span>
+      <h1>돌림판</h1>
+      <p class="sub">2개부터 20개까지, 항목을 넣고 돌리면 하나가 딱 걸립니다.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label class="field-label" for="rRange">항목 수 <span class="count-badge"><span id="rCount">6</span>개</span></label>
+        <div class="stepper">
+          <button type="button" class="step-btn" id="rMinus" aria-label="항목 수 줄이기">−</button>
+          <input type="range" id="rRange" min="2" max="20" step="1" value="6" aria-label="항목 수">
+          <button type="button" class="step-btn" id="rPlus" aria-label="항목 수 늘리기">+</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">빠른 프리셋</span>
+        <div class="chips">
+          <button type="button" class="chip active" data-preset="lunch">🍱 점심 메뉴</button>
+          <button type="button" class="chip" data-preset="coffee">☕ 커피 내기</button>
+          <button type="button" class="chip" data-preset="penalty">🎲 벌칙 · 순번</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">항목 <span style="font-weight:400; color:var(--muted)">(직접 고쳐도 바로 반영돼요)</span></span>
+        <div class="items" id="rItems"></div>
+      </div>
+    </div>
+
+    <div class="card wheel-card">
+      <div class="wheel-stage">
+        <span class="pointer" aria-hidden="true"></span>
+        <canvas id="wheelCanvas" role="img" aria-label="돌림판"></canvas>
+        <button type="button" class="spin-btn" id="spinBtn">돌리기</button>
+      </div>
+      <p class="spin-result" id="rResult" aria-live="polite"><span class="label">돌리기를 눌러 주세요</span></p>
+    </div>
+  </section>
+
+  <!-- ===================== 사다리 타기 ===================== -->
+  <section class="panel" id="panel-ladder" role="tabpanel" aria-labelledby="tab-ladder" hidden>
+    <header>
+      <span class="eyebrow">커피 내기 · 당번 정하기</span>
+      <h1>사다리 타기</h1>
+      <p class="sub">이름을 누르면 그 사람의 경로가 사다리를 타고 내려갑니다.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label class="field-label" for="lRange">인원 수 <span class="count-badge"><span id="lCount">4</span>명</span></label>
+        <div class="stepper">
+          <button type="button" class="step-btn" id="lMinus" aria-label="인원 수 줄이기">−</button>
+          <input type="range" id="lRange" min="2" max="20" step="1" value="4" aria-label="인원 수">
+          <button type="button" class="step-btn" id="lPlus" aria-label="인원 수 늘리기">+</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">참가자 이름</span>
+        <div class="items" id="lNames"></div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">결과 · 벌칙 <span style="font-weight:400; color:var(--muted)">(아래쪽 결과와 위에서부터 차례로 연결돼요)</span></span>
+        <div class="items" id="lResults"></div>
+      </div>
+    </div>
+
+    <div class="card ladder-card">
+      <p class="ladder-hint">위쪽 이름을 눌러 보세요. 하나의 사다리에서 결과가 서로 겹치지 않게 정해집니다.</p>
+      <div class="ladder-scroll" id="lScroll">
+        <div class="ladder-inner" id="lInner">
+          <div class="ladder-labels top" id="lNameRow"></div>
+          <canvas id="ladderCanvas" role="img" aria-label="사다리"></canvas>
+          <div class="ladder-labels bottom" id="lResultRow"></div>
+        </div>
+      </div>
+      <p class="ladder-toast" id="lToast" aria-live="polite"></p>
+      <div class="btn-row">
+        <button type="button" class="calc-btn" id="lReveal">전체 결과 한눈에 보기</button>
+        <button type="button" class="btn-ghost" id="lShuffle">사다리 다시 섞기</button>
+      </div>
+      <div class="result-grid" id="lResultTable" hidden></div>
+    </div>
+  </section>
+
   <footer>
     이 계산기는 근로기준법 제60조와 고용노동부 행정해석을 기준으로 하며, 참고용입니다.
     실제 연차는 회사 취업규칙과 출근율에 따라 달라질 수 있습니다. · 기준 확인일: 2026.07
@@ -458,5 +723,6 @@
     return days + '일';
   }
 </script>
+<script src="games.js"></script>
 </body>
 </html>
